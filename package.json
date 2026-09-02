@@ -1,0 +1,21 @@
+{
+  "name": "momentum-habits",
+  "version": "1.0.0",
+  "description": "Momentum — Forgiving Habit Tracker — PWA + Capacitor wrapper for iOS/Android stores",
+  "type": "module",
+  "scripts": {
+    "serve": "npx serve . -l 3000",
+    "cap:init": "npx cap init Momentum com.momentum.habits --web-dir .",
+    "cap:add:android": "npx cap add android",
+    "cap:add:ios": "npx cap add ios",
+    "cap:sync": "npx cap sync",
+    "cap:open:android": "npx cap open android",
+    "cap:open:ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/ios": "^6.2.0"
+  }
+}

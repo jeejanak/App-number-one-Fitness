@@ -1,0 +1,13 @@
+{
+  "appId": "com.momentum.habits",
+  "appName": "Momentum",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}
