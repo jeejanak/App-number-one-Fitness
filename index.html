@@ -25,11 +25,29 @@
       <button onclick="loginOAuth('Google')" class="w-full border border-slate-200 bg-white rounded-xl py-3 text-sm font-medium flex items-center justify-center gap-2"><img src="https://www.google.com/favicon.ico" class="w-4 h-4"/>Continue with Google</button>
       <button onclick="loginOAuth('Apple')" class="w-full bg-black text-white rounded-xl py-3 text-sm font-medium flex items-center justify-center gap-2"> Continue with Apple</button>
       <div class="flex items-center gap-3 text-xs text-slate-400"><span class="flex-1 h-px bg-slate-200"></span>or<span class="flex-1 h-px bg-slate-200"></span></div>
-      <form id="emailForm" class="flex gap-2">
-        <input id="emailInput" type="email" placeholder="you@gmail.com" required class="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm"/>
-        <button class="bg-sky-500 text-white rounded-xl px-6 py-3 text-sm font-semibold">Continue</button>
+      <form id="emailForm" class="space-y-2">
+        <div class="flex gap-2">
+          <input id="emailInput" type="email" placeholder="you@gmail.com" required class="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm"/>
+          <button class="bg-sky-500 text-white rounded-xl px-6 py-3 text-sm font-semibold">Continue</button>
+        </div>
+        <div class="flex gap-2">
+          <select id="countryCode" class="border border-slate-200 rounded-xl px-2 py-3 text-sm bg-white">
+            <option value="+91">🇮🇳 +91</option>
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+61">🇦🇺 +61</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+971">🇦🇪 +971</option>
+            <option value="+65">🇸🇬 +65</option>
+            <option value="+27">🇿🇦 +27</option>
+          </select>
+          <input id="phoneInput" type="tel" placeholder="Phone (optional)" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm"/>
+        </div>
+        <p class="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">🔒 We never spam and we never call unless asked. Phone is optional.</p>
       </form>
-      <p class="text-[11px] text-slate-400">Up to 5 people can use this device. Data stays on device (local). Add real OAuth later via Firebase/Supabase.</p>
+      <p class="text-[11px] text-slate-400">Up to 5 people can use this device. Data stays on device + securely backed to GitHub Excel.</p>
     </div>
     <p class="text-[11px] text-slate-400 mt-6">World-class pattern: Like Productive's onboarding → clean hero + social proof → 1-tap add. Photos from Unsplash.</p>
   </div>
@@ -63,7 +81,10 @@
   <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
     <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-violet-600 grid place-items-center text-white font-black">◐</div>
     <div>
-      <div id="greeting" class="font-bold leading-none">Good morning</div>
+      <div class="flex items-center gap-2">
+        <div id="greeting" class="font-bold leading-none">Good morning</div>
+        <button id="editNameBtn" class="text-xs border border-slate-200 bg-white px-2 py-1 rounded-full" title="Rename user">✏️ Edit</button>
+      </div>
       <div id="subGreeting" class="text-xs text-slate-500">Habits since —</div>
     </div>
     <div class="ml-auto flex items-center gap-2">
@@ -211,32 +232,51 @@ function renderSwitcher(){
   }
 }
 
-function loginWithEmail(email){
+function loginWithEmail(email, phone, countryCode){
   email=email.trim().toLowerCase()
   if(!email.includes('@')) return alert('Enter a valid email')
+  // phone optional
+  phone=(phone||'').trim()
+  countryCode=(countryCode||'').trim()
+  if(phone && !/^[0-9\s\-]{6,15}$/.test(phone)) return alert('Enter valid phone or leave empty')
   let users=loadUsers()
   if(users.length>=5 && !users.find(u=>u.email===email)) return alert('Up to 5 users on this device. Reset or switch.')
   let u=users.find(x=>x.email===email)
   if(!u){
     const name=email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase())
-    u={id:'u'+Date.now(), name, email, createdAt: new Date().toISOString(), habits: []}
-    // seed with 3 demo habits dated from today (not 7 fake days)
-    const t=todayStr()
-    u.habits=[]
+    u={id:'u'+Date.now(), name, email, phone: phone||'', countryCode: phone?countryCode:'', createdAt: new Date().toISOString(), habits: []}
     users.push(u)
     saveUsers(users)
+  } else {
+    // update phone if provided
+    if(phone){ u.phone=phone; u.countryCode=countryCode; saveUsers(users) }
   }
   setCurrentUser(u.id)
   ensureAuth()
   render()
+  // Persist centrally to GitHub Excel DB (never delete, date-wise tabs) — fire-and-forget
+  try{
+    const payload={email, name: u.name, createdAt: u.createdAt, phone: u.phone||'', countryCode: u.countryCode||''}
+    fetch('/.netlify/functions/collect-email', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)}).catch(()=>{})
+    fetch('https://resonant-fudge-836881.netlify.app/.netlify/functions/collect-email', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)}).catch(()=>{})
+  }catch{}
 }
 function loginOAuth(provider){
   const email=prompt(`Enter your ${provider} email to continue (demo OAuth):`, provider==='Google'?'you@gmail.com':'you@icloud.com')
   if(email) loginWithEmail(email)
 }
 
-document.getElementById('emailForm').addEventListener('submit', e=>{e.preventDefault(); loginWithEmail(document.getElementById('emailInput').value)})
+document.getElementById('emailForm').addEventListener('submit', e=>{e.preventDefault(); loginWithEmail(document.getElementById('emailInput').value, document.getElementById('phoneInput').value, document.getElementById('countryCode').value)})
 
+document.getElementById('editNameBtn').onclick=()=>{
+  const u=getCurrentUser(); if(!u) return
+  const next=prompt('Rename user:', u.name)
+  if(!next || !next.trim()) return
+  const name=next.trim().slice(0,20)
+  let users=loadUsers(); const idx=users.findIndex(x=>x.id===u.id); users[idx].name=name; saveUsers(users); render()
+  // also update central Excel name
+  try{ fetch('/.netlify/functions/collect-email', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email:u.email, name, createdAt:u.createdAt, phone:u.phone||'', countryCode:u.countryCode||''})}).catch(()=>{}) }catch{}
+}
 document.getElementById('logoutBtn').onclick=()=>{
   localStorage.removeItem(CUR_KEY); ensureAuth()
 }
