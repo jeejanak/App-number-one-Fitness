@@ -185,10 +185,12 @@ function render(){
   document.getElementById('statTotal').textContent=habits.length;
   const avg=habits.length? Math.round(habits.reduce((a,h)=>a+ (Object.values(h.checks).filter(Boolean).length / Math.max(1,Object.keys(h.checks).length)),0)/habits.length*100):0;
   document.getElementById('statScore').textContent=avg+'%';
-  // accountability text
+  // accountability text — show 86% as 6/7 for clarity, fix 14% bug for new habits
   const txt=habits.map(h=>{
-    const pct=Math.round(Object.values(h.checks).filter(Boolean).length / Math.max(1,Object.keys(h.checks).length)*100);
-    return `• ${h.name} (${h.goal}): ${pct}% — ${h.checks[t]?'✅ today':'⬜︎ today'}`;
+    const total=Object.values(h.checks).filter(Boolean).length;
+    const days=Object.keys(h.checks).length;
+    const pct=days? Math.round(total/days*100):0;
+    return `• ${h.name} (${h.goal}): ${pct}% (${total}/${days} days) — ${h.checks[t]?'✅ today':'⬜︎ today'}`;
   }).join('\n');
   document.getElementById('accountText').value=`My Momentum week (${todayStr()}):\n${txt}\n\nSent from Momentum PWA — forgiving tracker (no streak-shaming).`;
 
@@ -215,8 +217,8 @@ document.getElementById('addForm').addEventListener('submit', e=>{
   const goal=document.getElementById('habitGoal').value;
   if(!name) return;
   const h={id: Date.now().toString(), name, goal, created: todayStr(), checks: {}};
-  // init 7 days history with only today unchecked
-  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const k=d.toISOString().slice(0,10); if(!(k in h.checks)) h.checks[k]=false; }
+  // Fix: new habits start today only (was 1/7=14% bug). Past days before creation should not count.
+  h.checks[todayStr()]=false;
   habits.unshift(h); save(habits); e.target.reset(); render();
 });
 
