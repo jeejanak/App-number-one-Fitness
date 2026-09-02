@@ -269,7 +269,8 @@ document.getElementById('resetBtn').onclick=()=>{
 function getHabitImage(name, goal){
   const n=(name||'').toLowerCase()
   // Keyword-first: any activity gets relevant photo/gif
-  if(n.includes('water')||n.includes('drink')||n.includes('hydrat')||n.includes('glass')||n.includes('bottle')) return 'https://media.giphy.com/media/l1J9u3TZfpfeDLkD6/giphy.gif'
+  if(n.includes('water')||n.includes('drink')||n.includes('hydrat')||n.includes('glass')||n.includes('bottle')) return 'https://media.giphy.com/media/3o84U5RC5HkhbZiYgg/giphy.gif' // water pouring GIF - fixed 404
+  if(n.includes('gym')||n.includes('weight')||n.includes('lift')||n.includes('push')||n.includes('pull')||n.includes('squat')) return 'https://media.giphy.com/media/3o7TKQ8kAP0f9X5PoY/giphy.gif' // workout GIF
   if(n.includes('mount')||n.includes('hike')||n.includes('trek')||n.includes('climb')||n.includes('alpin')||n.includes('peak')||n.includes('everest')) return 'https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?w=600&h=400&fit=crop'
   if(n.includes('run')||n.includes('jog')||n.includes('marathon')) return 'https://images.unsplash.com/photo-1486218119243-13883505764c?w=600&h=400&fit=crop'
   if(n.includes('walk')||n.includes('step')) return 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&h=400&fit=crop'
