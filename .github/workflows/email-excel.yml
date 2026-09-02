@@ -1,0 +1,41 @@
+name: Email Excel every 5 hours
+on:
+  schedule:
+    - cron: '0 */5 * * *' # every 5 hours
+  workflow_dispatch:
+
+jobs:
+  email:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 20}
+      - run: npm install exceljs --no-save
+      - run: node scripts/generate-excel.js
+      - run: echo "TODAY=$(date -u +%Y-%m-%d_%H:%M_UTC)" >> $GITHUB_ENV
+      - name: Send Excel to jeejanak@gmail.com
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: Momentum Users — ${{ github.repository }} — ${{ env.TODAY }}
+          to: jeejanak@gmail.com
+          from: Momentum Bot <${{ secrets.MAIL_USERNAME }}>
+          body: |
+            Hi jeejanak,
+
+            Attached is the cumulative Momentum users Excel (never deletes, date-wise tabs).
+            Generated: ${{ env.TODAY }} UTC
+            Repo: ${{ github.repository }}
+            Master + per-date sheets, includes email + phone + countryCode.
+
+            To enable: add secrets MAIL_USERNAME (your Gmail) and MAIL_PASSWORD (Gmail App Password) in GitHub → Settings → Secrets → Actions.
+
+            — Momentum (every 5 hours)
+          attachments: docs/Momentum_Users.xlsx

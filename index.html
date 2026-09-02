@@ -89,7 +89,8 @@
     </div>
     <div class="ml-auto flex items-center gap-2">
       <div id="userSwitcher" class="flex items-center gap-1 bg-slate-100 rounded-full p-1"></div>
-      <button id="resetBtn" class="text-xs border border-slate-200 bg-white px-3 py-2 rounded-full">Reset</button>
+      <button id="resetBtn" class="text-xs border border-slate-200 bg-white px-3 py-2 rounded-full" title="Clear habits for this user">Reset history</button>
+      <button id="deleteUserBtn" class="text-xs border border-red-200 bg-red-50 text-red-600 px-3 py-2 rounded-full" title="Delete this user entirely">Delete user</button>
       <button id="logoutBtn" class="text-xs bg-slate-900 text-white px-3 py-2 rounded-full">Switch / Logout</button>
     </div>
   </div>
@@ -232,13 +233,37 @@ function renderSwitcher(){
   }
 }
 
+function isValidEmail(email){
+  // RFC-ish + checks from Productive/Top apps: no spaces, one @, domain with dot, TLD 2+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) && !email.includes('..') && email.split('@').length===2
+}
+const PHONE_RULES={
+  '+91':{min:10,max:10, name:'India (10 digits, mobile & landline with STD)'},
+  '+1':{min:10,max:10, name:'US/Canada (10 digits)'},
+  '+44':{min:10,max:11, name:'UK (10-11 digits, mobile 11, landline 10)'},
+  '+61':{min:9,max:10, name:'Australia (9-10 digits)'},
+  '+81':{min:10,max:11, name:'Japan (10-11 digits)'},
+  '+49':{min:10,max:11, name:'Germany (10-11 digits)'},
+  '+33':{min:9,max:9, name:'France (9 digits, landline 9, mobile 9)'},
+  '+971':{min:9,max:9, name:'UAE (9 digits)'},
+  '+65':{min:8,max:8, name:'Singapore (8 digits)'},
+  '+27':{min:9,max:10, name:'South Africa (9-10 digits)'}
+}
+function validatePhone(phone, code){
+  if(!phone) return true
+  const digits=phone.replace(/\D/g,'')
+  const r=PHONE_RULES[code]||{min:6,max:15, name:'International (6-15 digits)'}
+  if(digits.length<r.min || digits.length>r.max) return `Phone for ${r.name} must be ${r.min===r.max?r.min:r.min+'-'+r.max} digits (you entered ${digits.length})`
+  return true
+}
 function loginWithEmail(email, phone, countryCode){
   email=email.trim().toLowerCase()
-  if(!email.includes('@')) return alert('Enter a valid email')
-  // phone optional
+  if(!isValidEmail(email)) return alert('Enter a valid email — e.g. name@domain.com (no spaces, must have @ and .)')
+  // phone optional — country-aware check (landline/mobile, some countries have less digits)
   phone=(phone||'').trim()
   countryCode=(countryCode||'').trim()
-  if(phone && !/^[0-9\s\-]{6,15}$/.test(phone)) return alert('Enter valid phone or leave empty')
+  const phoneCheck=validatePhone(phone, countryCode)
+  if(phoneCheck!==true) return alert(phoneCheck)
   let users=loadUsers()
   if(users.length>=5 && !users.find(u=>u.email===email)) return alert('Up to 5 users on this device. Reset or switch.')
   let u=users.find(x=>x.email===email)
@@ -284,6 +309,15 @@ document.getElementById('resetBtn').onclick=()=>{
   const u=getCurrentUser(); if(!u) return
   if(!confirm(`Reset all habits for ${u.name}? This clears history since ${fmtDate(u.createdAt)}.`)) return
   let users=loadUsers(); const idx=users.findIndex(x=>x.id===u.id); users[idx].habits=[]; saveUsers(users); render()
+}
+document.getElementById('deleteUserBtn').onclick=()=>{
+  const u=getCurrentUser(); if(!u) return
+  if(!confirm(`Delete user "${u.name}" (${u.email}) entirely? This removes all their habits and cannot be undone.`)) return
+  let users=loadUsers().filter(x=>x.id!==u.id)
+  saveUsers(users)
+  localStorage.removeItem(CUR_KEY)
+  if(users.length>0) setCurrentUser(users[0].id)
+  ensureAuth(); render()
 }
 
 // habit helpers — ALL GIFs per request, excellent & relevant, Apple-compatible (20 distinct, all 200 verified via explore agent)
