@@ -116,10 +116,26 @@
     <form id="addForm" class="mt-3 grid sm:grid-cols-[1fr_160px_auto] gap-2">
       <input id="habitName" placeholder="e.g. Gym 45m" class="border border-slate-200 rounded-xl px-4 py-3 text-sm" required/>
       <select id="habitGoal" class="border border-slate-200 rounded-xl px-4 py-3 text-sm">
-        <option value="Health">🏋️ Health</option>
+        <option value="Health">🏥 Health</option>
+        <option value="Fitness">🏋️ Fitness</option>
         <option value="Focus">🎯 Focus</option>
         <option value="Learning">📚 Learning</option>
         <option value="Finance">💰 Finance</option>
+        <option value="Hydration">💧 Hydration</option>
+        <option value="Nutrition">🥗 Nutrition</option>
+        <option value="Sleep">😴 Sleep</option>
+        <option value="Mindfulness">🧘 Mindfulness</option>
+        <option value="Productivity">⚡ Productivity</option>
+        <option value="Career">💼 Career</option>
+        <option value="Social">👥 Social</option>
+        <option value="Creativity">🎨 Creativity</option>
+        <option value="Adventure">⛰️ Adventure</option>
+        <option value="Wellness">🌿 Wellness</option>
+        <option value="Reading">📖 Reading</option>
+        <option value="Workout">💪 Workout</option>
+        <option value="Meditation">🕯️ Meditation</option>
+        <option value="Study">🎓 Study</option>
+        <option value="Running">🏃 Running</option>
       </select>
       <button class="bg-sky-500 hover:bg-sky-600 text-white rounded-xl px-6 py-3 text-sm font-semibold">Add habit</button>
     </form>
@@ -249,13 +265,55 @@ document.getElementById('resetBtn').onclick=()=>{
   let users=loadUsers(); const idx=users.findIndex(x=>x.id===u.id); users[idx].habits=[]; saveUsers(users); render()
 }
 
-// habit helpers
-function photoFor(goal){
-  if(goal==='Health') return 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop'
-  if(goal==='Focus') return 'https://images.unsplash.com/photo-1494172961521-33799ddd43a5?w=600&h=400&fit=crop'
-  if(goal==='Learning') return 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop'
-  return 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=600&h=400&fit=crop'
+// habit helpers — smart photo by habit name keywords + 20 goals, copies top apps
+function getHabitImage(name, goal){
+  const n=(name||'').toLowerCase()
+  // Keyword-first: any activity gets relevant photo/gif
+  if(n.includes('water')||n.includes('drink')||n.includes('hydrat')||n.includes('glass')||n.includes('bottle')) return 'https://media.giphy.com/media/l1J9u3TZfpfeDLkD6/giphy.gif'
+  if(n.includes('mount')||n.includes('hike')||n.includes('trek')||n.includes('climb')||n.includes('alpin')||n.includes('peak')||n.includes('everest')) return 'https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?w=600&h=400&fit=crop'
+  if(n.includes('run')||n.includes('jog')||n.includes('marathon')) return 'https://images.unsplash.com/photo-1486218119243-13883505764c?w=600&h=400&fit=crop'
+  if(n.includes('walk')||n.includes('step')) return 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&h=400&fit=crop'
+  if(n.includes('gym')||n.includes('weight')||n.includes('lift')||n.includes('push')||n.includes('pull')||n.includes('squat')) return 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop'
+  if(n.includes('workout')||n.includes('train')||n.includes('exercise')||n.includes('fitness')) return 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&h=400&fit=crop'
+  if(n.includes('yoga')||n.includes('stretch')) return 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=400&fit=crop'
+  if(n.includes('medit')) return 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&h=400&fit=crop'
+  if(n.includes('sleep')||n.includes('nap')||n.includes('bed')) return 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=400&fit=crop'
+  if(n.includes('read')||n.includes('book')) return 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=400&fit=crop'
+  if(n.includes('study')||n.includes('learn')||n.includes('course')||n.includes('exam')) return 'https://images.unsplash.com/photo-1434030216411-0b793f4b417d?w=600&h=400&fit=crop'
+  if(n.includes('code')||n.includes('program')||n.includes('build')||n.includes('ship')) return 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop'
+  if(n.includes('focus')||n.includes('deep work')||n.includes('pomodoro')) return 'https://images.unsplash.com/photo-1494172961521-33799ddd43a5?w=600&h=400&fit=crop'
+  if(n.includes('job')||n.includes('apply')||n.includes('interview')||n.includes('career')||n.includes('resume')) return 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&h=400&fit=crop'
+  if(n.includes('money')||n.includes('financ')||n.includes('save')||n.includes('budget')||n.includes('invest')) return 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=600&h=400&fit=crop'
+  if(n.includes('food')||n.includes('diet')||n.includes('eat')||n.includes('cook')||n.includes('meal')) return 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop'
+  if(n.includes('social')||n.includes('friend')||n.includes('call')||n.includes('family')) return 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=400&fit=crop'
+  if(n.includes('creat')||n.includes('art')||n.includes('draw')||n.includes('design')||n.includes('music')) return 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&h=400&fit=crop'
+  if(n.includes('travel')||n.includes('adventure')||n.includes('explore')) return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&h=400&fit=crop'
+  // Fallback to 20 goals
+  const goalMap={
+    Health:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop',
+    Fitness:'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop',
+    Focus:'https://images.unsplash.com/photo-1494172961521-33799ddd43a5?w=600&h=400&fit=crop',
+    Learning:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop',
+    Finance:'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=600&h=400&fit=crop',
+    Hydration:'https://media.giphy.com/media/l1J9u3TZfpfeDLkD6/giphy.gif',
+    Nutrition:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop',
+    Sleep:'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=400&fit=crop',
+    Mindfulness:'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=400&fit=crop',
+    Productivity:'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&h=400&fit=crop',
+    Career:'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&h=400&fit=crop',
+    Social:'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=400&fit=crop',
+    Creativity:'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&h=400&fit=crop',
+    Adventure:'https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?w=600&h=400&fit=crop',
+    Wellness:'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=600&h=400&fit=crop',
+    Reading:'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=400&fit=crop',
+    Workout:'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&h=400&fit=crop',
+    Meditation:'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&h=400&fit=crop',
+    Study:'https://images.unsplash.com/photo-1434030216411-0b793f4b417d?w=600&h=400&fit=crop',
+    Running:'https://images.unsplash.com/photo-1486218119243-13883505764c?w=600&h=400&fit=crop'
+  }
+  return goalMap[goal] || goalMap.Health
 }
+function photoFor(goal){ return getHabitImage('', goal) }
 
 function render(){
   ensureAuth()
@@ -274,7 +332,7 @@ function render(){
     const card=document.createElement('div')
     card.className='bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm'
     card.innerHTML=`
-      <img src="${photoFor(h.goal)}" class="h-28 w-full object-cover"/>
+      <img src="${getHabitImage(h.name, h.goal)}" class="h-28 w-full object-cover" loading="lazy" onerror="this.src=photoFor(h.goal)"/>
       <div class="p-4">
         <div class="flex items-start justify-between gap-3">
           <div>
