@@ -265,17 +265,17 @@ document.getElementById('resetBtn').onclick=()=>{
   let users=loadUsers(); const idx=users.findIndex(x=>x.id===u.id); users[idx].habits=[]; saveUsers(users); render()
 }
 
-// habit helpers — smart photo by habit name keywords + 20 goals, copies top apps
+// habit helpers — smart photo by habit name keywords + 20 goals, copies Productive/Streaks (Apple-reliable photos, not cropped GIFs)
 function getHabitImage(name, goal){
   const n=(name||'').toLowerCase()
-  // Keyword-first: any activity gets relevant photo/gif
-  if(n.includes('water')||n.includes('drink')||n.includes('hydrat')||n.includes('glass')||n.includes('bottle')) return 'https://media.giphy.com/media/3o84U5RC5HkhbZiYgg/giphy.gif' // water pouring GIF - fixed 404
-  if(n.includes('gym')||n.includes('weight')||n.includes('lift')||n.includes('push')||n.includes('pull')||n.includes('squat')) return 'https://media.giphy.com/media/3o7TKQ8kAP0f9X5PoY/giphy.gif' // workout GIF
-  if(n.includes('mount')||n.includes('hike')||n.includes('trek')||n.includes('climb')||n.includes('alpin')||n.includes('peak')||n.includes('everest')) return 'https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?w=600&h=400&fit=crop'
-  if(n.includes('run')||n.includes('jog')||n.includes('marathon')) return 'https://images.unsplash.com/photo-1486218119243-13883505764c?w=600&h=400&fit=crop'
-  if(n.includes('walk')||n.includes('step')) return 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&h=400&fit=crop'
-  if(n.includes('gym')||n.includes('weight')||n.includes('lift')||n.includes('push')||n.includes('pull')||n.includes('squat')) return 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop'
-  if(n.includes('workout')||n.includes('train')||n.includes('exercise')||n.includes('fitness')) return 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&h=400&fit=crop'
+  // Keyword-first: any activity gets a beautiful, well-cropped photo (GIFs blocked/cut on Apple, photos are world-class)
+  if(n.includes('water')||n.includes('drink')||n.includes('hydrat')||n.includes('glass')||n.includes('bottle')) return 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=600&h=400&fit=crop&crop=center' // water bottles in a row — clear, not pouring GIF
+  if(n.includes('mount')||n.includes('hike')||n.includes('trek')||n.includes('climb')||n.includes('alpin')||n.includes('peak')||n.includes('everest')) return 'https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?w=600&h=400&fit=crop&crop=center'
+  if(n.includes('run')||n.includes('jog')||n.includes('marathon')) return 'https://images.unsplash.com/photo-1486218119243-13883505764c?w=600&h=400&fit=crop&crop=center'
+  if(n.includes('walk')||n.includes('step')) return 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&h=400&fit=crop&crop=center'
+  if(n.includes('gym')) return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=400&fit=crop&crop=center' // full gym, not eyes
+  if(n.includes('weight')||n.includes('lift')||n.includes('squat')||n.includes('push')||n.includes('pull')) return 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&h=400&fit=crop&crop=center' // dumbbells, centered
+  if(n.includes('workout')||n.includes('train')||n.includes('exercise')||n.includes('fitness')) return 'https://images.unsplash.com/photo-1594381898411-846e7d193883?w=600&h=400&fit=crop&crop=center' // full-body, not cut biceps
   if(n.includes('yoga')||n.includes('stretch')) return 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=400&fit=crop'
   if(n.includes('medit')) return 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&h=400&fit=crop'
   if(n.includes('sleep')||n.includes('nap')||n.includes('bed')) return 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=400&fit=crop'
@@ -296,7 +296,7 @@ function getHabitImage(name, goal){
     Focus:'https://images.unsplash.com/photo-1494172961521-33799ddd43a5?w=600&h=400&fit=crop',
     Learning:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop',
     Finance:'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=600&h=400&fit=crop',
-    Hydration:'https://media.giphy.com/media/l1J9u3TZfpfeDLkD6/giphy.gif',
+    Hydration:'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=600&h=400&fit=crop&crop=center',
     Nutrition:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop',
     Sleep:'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=400&fit=crop',
     Mindfulness:'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&h=400&fit=crop',
@@ -333,7 +333,7 @@ function render(){
     const card=document.createElement('div')
     card.className='bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm'
     card.innerHTML=`
-      <img src="${getHabitImage(h.name, h.goal)}" class="h-28 w-full object-cover" loading="lazy" onerror="this.src=photoFor(h.goal)"/>
+      <img src="${getHabitImage(h.name, h.goal)}" class="h-36 w-full object-cover object-center" loading="lazy" onerror="this.src=photoFor(h.goal)"/>
       <div class="p-4">
         <div class="flex items-start justify-between gap-3">
           <div>
